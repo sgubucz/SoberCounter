@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101211">
+  <meta name="description" content="A quiet, private counter for alcohol-free days and milestones.">
+  <title>Sober days — one day at a time</title>
+  <style>
+    :root { color-scheme: dark; --bg:#101211; --panel:#171a18; --line:#2a302c; --text:#f2f3ef; --muted:#9ba49d; --green:#a6d5a5; --green-dim:#253a2a; }
+    * { box-sizing:border-box; }
+    body { margin:0; min-height:100vh; background:radial-gradient(ellipse at 50% 0%, #1a211c 0, var(--bg) 54rem); color:var(--text); font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+    main { width:min(100% - 40px, 760px); margin:0 auto; padding:clamp(38px,8vh,78px) 0 42px; }
+    .eyebrow { color:var(--muted); font-size:.75rem; letter-spacing:.16em; text-transform:uppercase; }
+    header { display:flex; align-items:center; justify-content:space-between; gap:16px; padding-bottom:28px; border-bottom:1px solid var(--line); }
+    .mark { width:34px;height:34px;border:1px solid #526254;border-radius:50%;display:grid;place-items:center;color:var(--green);font-size:17px; }
+    .hero { padding:clamp(48px,10vh,88px) 0 58px; text-align:center; }
+    .hero .eyebrow { margin:0 0 18px; }
+    h1 { margin:0; font-size:clamp(6.5rem,25vw,12rem); font-weight:450; letter-spacing:-.09em; line-height:.92; font-variant-numeric:tabular-nums; }
+    .unit { color:var(--green); margin:18px 0 0; font-size:1rem; letter-spacing:.04em; }
+    .since { margin:34px 0 0; color:var(--muted); font-size:.9rem; }
+    .cards { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+    .card { background:linear-gradient(145deg,#1a1e1b,var(--panel)); border:1px solid var(--line); border-radius:16px; padding:22px 24px; min-height:125px; }
+    .card-label { color:var(--muted); font-size:.75rem; letter-spacing:.12em; text-transform:uppercase; }
+    .card-value { margin:15px 0 0; font-size:1.35rem; font-weight:500; }
+    .card-note { margin:7px 0 0; color:var(--muted); font-size:.82rem; }
+    .milestones { margin-top:52px; }
+    .section-heading { display:flex; align-items:baseline; justify-content:space-between; gap:12px; margin-bottom:20px; }
+    h2 { margin:0; font-size:1rem; font-weight:500; }
+    .section-heading span { color:var(--muted); font-size:.8rem; }
+    .track { display:grid; grid-template-columns:repeat(8,minmax(0,1fr)); position:relative; gap:0; }
+    .track::before { content:""; position:absolute; left:5px; right:5px; top:6px; height:1px; background:var(--line); }
+    .milestone { position:relative; padding-top:24px; color:var(--muted); font-size:.75rem; font-variant-numeric:tabular-nums; }
+    .milestone::before { content:""; position:absolute; z-index:1; top:2px; left:0; width:9px; height:9px; border:1px solid #56615a; border-radius:50%; background:var(--bg); }
+    .milestone.done { color:var(--green); }
+    .milestone.done::before { background:var(--green); border-color:var(--green); box-shadow:0 0 0 4px var(--green-dim); }
+    .milestone.next { color:var(--text); }
+    .milestone.next::before { border-color:var(--green); box-shadow:0 0 0 4px var(--green-dim); }
+    .milestone small { display:block; margin-top:5px; color:var(--muted); font-size:.68rem; }
+    footer { display:flex; justify-content:space-between; gap:16px; margin-top:56px; padding-top:18px; border-top:1px solid var(--line); color:var(--muted); font-size:.75rem; }
+    @media(max-width:560px) { main { width:min(100% - 32px,760px); padding-top:30px; } header { padding-bottom:22px; } .hero { padding:62px 0 46px; } .cards { gap:10px; } .card { min-height:116px; padding:18px 16px; } .card-value { font-size:1.12rem; } .track { grid-template-columns:repeat(4,minmax(0,1fr)); row-gap:20px; } .track::before { display:none; } .milestone { border-top:1px solid var(--line); margin-right:8px; padding-top:13px; } .milestone::before { top:-5px; } .milestones { margin-top:42px; } footer { margin-top:42px; } }
+    @media(prefers-reduced-motion:no-preference) { .milestone::before { transition:box-shadow .2s ease; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header><div class="eyebrow">A personal counter</div><div class="mark" aria-hidden="true">↗</div></header>
+    <section class="hero" aria-labelledby="counter-heading">
+      <p class="eyebrow" id="counter-heading">Alcohol-free since</p>
+      <h1 id="day-count" aria-live="polite">—</h1>
+      <p class="unit">days</p>
+      <p class="since" id="since-date"></p>
+    </section>
+    <section class="cards" aria-label="Progress">
+      <article class="card"><div class="card-label">Next milestone</div><p class="card-value" id="next-milestone">—</p><p class="card-note" id="milestone-note"></p></article>
+      <article class="card"><div class="card-label">Coming up</div><p class="card-value" id="countdown">—</p><p class="card-note">days to go</p></article>
+    </section>
+    <section class="milestones" aria-labelledby="milestone-title">
+      <div class="section-heading"><h2 id="milestone-title">Milestones</h2><span>One day at a time</span></div>
+      <div class="track" id="timeline" aria-label="Milestone timeline"></div>
+    </section>
+    <footer><span>Progress, at your own pace.</span><span>Stored only in this page.</span></footer>
+  </main>
+  <script>
+    // The first alcohol-free day is day 1 (inclusive count).
+    const startDate = new Date(Date.UTC(2026, 8, 16));
+    const milestones = [7, 30, 60, 90, 180, 365, 500, 1000];
+    const dayCountEl = document.getElementById('day-count');
+    const dateEl = document.getElementById('since-date');
+    const nextEl = document.getElementById('next-milestone');
+    const noteEl = document.getElementById('milestone-note');
+    const countdownEl = document.getElementById('countdown');
+    const timelineEl = document.getElementById('timeline');
+    const dateFormatter = new Intl.DateTimeFormat(undefined, {day:'numeric', month:'long', year:'numeric', timeZone:'UTC'});
+
+    function utcToday() {
+      const now = new Date();
+      return Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
+    }
+    function updateCounter() {
+      const elapsedDays = Math.floor((utcToday() - startDate.getTime()) / 86400000);
+      const soberDays = Math.max(1, elapsedDays + 1);
+      dayCountEl.textContent = soberDays.toLocaleString();
+      dateEl.textContent = `Since ${dateFormatter.format(startDate)}`;
+      const next = milestones.find(day => day > soberDays);
+      if (next) {
+        nextEl.textContent = `${next} days`;
+        noteEl.textContent = `${(next - soberDays).toLocaleString()} more ${next - soberDays === 1 ? 'day' : 'days'} to reach it`;
+        countdownEl.textContent = (next - soberDays).toLocaleString();
+      } else {
+        nextEl.textContent = 'All milestones reached';
+        noteEl.textContent = 'A thousand days and beyond';
+        countdownEl.textContent = '—';
+      }
+      timelineEl.replaceChildren(...milestones.map(day => {
+        const item = document.createElement('div');
+        item.className = `milestone${soberDays >= day ? ' done' : ''}${day === next ? ' next' : ''}`;
+        item.setAttribute('aria-label', `${day} days${soberDays >= day ? ', reached' : day === next ? ', next milestone' : ''}`);
+        item.append(document.createTextNode(day.toLocaleString()));
+        const small = document.createElement('small'); small.textContent = 'days'; item.append(small);
+        return item;
+      }));
+    }
+    updateCounter();
+    // Refresh on tab return so the count stays current without a server.
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) updateCounter(); });
+  </script>
+</body>
+</html>
